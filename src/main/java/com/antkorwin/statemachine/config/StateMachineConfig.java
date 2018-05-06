@@ -24,6 +24,7 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.persist.DefaultStateMachinePersister;
 import org.springframework.statemachine.persist.StateMachinePersister;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 
 import java.util.Optional;
@@ -57,16 +58,17 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
 
             @Override
             public void transition(Transition<States, Events> transition) {
-                if (transition != null &&
-                    transition.getSource() != null && transition.getSource().getId() != null &&
-                    transition.getTarget() != null && transition.getTarget().getId() != null) {
+                log.warn("MOVE from: {}, to: {}",
+                         ofNullableState(transition.getSource()),
+                         ofNullableState(transition.getTarget()));
+            }
 
-                    log.warn("Move from {} to {}", transition.getSource().getId(), transition.getTarget().getId());
-                }
+            private Object ofNullableState(State s) {
+                return Optional.ofNullable(s)
+                               .map(State::getId)
+                               .orElse(null);
             }
         };
-
-
     }
 
 
