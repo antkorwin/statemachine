@@ -1,12 +1,20 @@
-# statemachine
+# Spring state machine
 Spring State Machine Workshop
 
-* simple linear flow
+* consider a simple linear flow for Kanban board
 
-* added some actions on the states.
+* add some actions on the states.
 
-* added guard for "testing" state.
+* add guard for "testing" state.
 
-* example of communication based on variables of states
+* example of communication based on the variables of state
 
-* simple persist sample
+* simple persist (in-memory)
+
+* persist state machine in mongodb
+
+* multiple state machine in one project
+
+* evaluate available events from current state
+
+Read full article in my blog : http://antkorwin.com/statemachine/statemachine.html

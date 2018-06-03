@@ -5,11 +5,13 @@ import com.antkorwin.statemachine.statemachine.States;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
@@ -72,8 +74,45 @@ public class SecondStateMachineConfig extends EnumStateMachineConfigurerAdapter<
     @Override
     public void configure(StateMachineTransitionConfigurer<States, Events> transitions) throws Exception {
         transitions.withExternal()
+                   // BACKLOG --> DONE : START_FEATURE
                    .source(States.BACKLOG)
                    .target(States.DONE)
-                   .event(Events.START_FEATURE);
+                   .event(Events.START_FEATURE)
+                   .guard(failGuard())
+                   .and()
+                   // BACKLOG --> DONE : ROCK_STAR_DOUBLE_TASK
+                   .withExternal()
+                   .source(States.BACKLOG)
+                   .target(States.DONE)
+                   .action(failAction())
+                   .event(Events.ROCK_STAR_DOUBLE_TASK)
+                   .and()
+                   // BACKLOG --> TESTING : FINISH_FEATURE
+                   .withExternal()
+                   .source(States.BACKLOG)
+                   .target(States.DONE)
+                   .action(actionWithInternalError())
+                   .event(Events.FINISH_FEATURE);
     }
+
+    private Action<States, Events> failAction() {
+        return context -> {
+            throw new RuntimeException("fail in action");
+        };
+    }
+
+    private Guard<States, Events> failGuard() {
+        return context -> {
+            throw new RuntimeException("fail in Guard");
+        };
+    }
+
+    private Action<States, Events> actionWithInternalError() {
+        return context -> {
+            context.getStateMachine()
+                   .setStateMachineError(new RuntimeException("fail in Action"));
+        };
+    }
+
+
 }
